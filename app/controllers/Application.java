@@ -19,8 +19,8 @@ public class Application extends Controller {
     public static OAuth2 FACEBOOK = new OAuth2(
             "https://graph.facebook.com/oauth/authorize",
             "https://graph.facebook.com/oauth/access_token",
-            "95341411595",
-            "8eff1b488da7fe3426f9ecaf8de1ba54"
+            "566151883592285",
+            "92a1ae36b2a00b92d7714b618fd6ae93"
     );
 
     public static void index() {
