@@ -16,53 +16,66 @@ public class Application extends Controller {
     // You need to bind loisant.org to your machine with /etc/hosts to
     // test the application locally.
 
-    public static OAuth2 FACEBOOK = new OAuth2(
+	public static OAuth2 FACEBOOK = new OAuth2(
             "https://graph.facebook.com/oauth/authorize",
             "https://graph.facebook.com/oauth/access_token",
             "566151883592285",
             "92a1ae36b2a00b92d7714b618fd6ae93"
     );
     
-   public static void index() {
-        User u = connected();
-        JsonObject me = null;
-        if (u != null && u.access_token != null) {
-            me = WS.url("https://graph.facebook.com/me?access_token=%s", WS.encode(u.access_token)).get().getJson().getAsJsonObject();
-        }
-        render(me);
+	public static void index() {
+        login();
     }
+	
+	public static void home() {
+        render();
+    }
+    
+	public static void login() {
+	    User u = connected();
+	    JsonObject me = null;
+	    if (u != null && u.access_token != null) {
+	        me = WS.url("https://graph.facebook.com/me?access_token=%s", WS.encode(u.access_token)).get().getJson().getAsJsonObject();
+	    }
+	    render(me);
+	}
+	
+	public static void logout(JsonObject me) {
 
-    public static void auth() {
-        if (OAuth2.isCodeResponse()) {
-            User u = connected();
-            OAuth2.Response response = FACEBOOK.retrieveAccessToken(authURL());
-            u.access_token = response.accessToken;
-            u.save();
-            index();
-        }
-        FACEBOOK.retrieveVerificationCode(authURL());
+		index();
     }
-
-    @Before
-    static void setuser() {
-        User user = null;
-        if (session.contains("uid")) {
-            Logger.info("existing user: " + session.get("uid"));
-            user = User.get(Long.parseLong(session.get("uid")));
-        }
-        if (user == null) {
-            user = User.createNew();
-            session.put("uid", user.uid);
-        }
-        renderArgs.put("user", user);
-    }
-
-    static String authURL() {
-        return play.mvc.Router.getFullUrl("Application.auth");
-    }
-
-    static User connected() {
-        return (User)renderArgs.get("user");
-    }
+	
+	public static void auth() {
+	    if (OAuth2.isCodeResponse()) {
+	        User u = connected();
+	        OAuth2.Response response = FACEBOOK.retrieveAccessToken(authURL());
+	        u.access_token = response.accessToken;
+	        u.save();
+	        home();
+	    }
+	    FACEBOOK.retrieveVerificationCode(authURL());
+	}
+	
+	@Before
+	static void setuser() {
+	    User user = null;
+	    if (session.contains("uid")) {
+	        Logger.info("existing user: " + session.get("uid"));
+	        user = User.get(Long.parseLong(session.get("uid")));
+	    }
+	    if (user == null) {
+	        user = User.createNew();
+	        session.put("uid", user.uid);
+	    }
+	    renderArgs.put("user", user);
+	}
+	
+	static String authURL() {
+	    return play.mvc.Router.getFullUrl("Application.auth");
+	}
+	
+	static User connected() {
+	    return (User)renderArgs.get("user");
+	}
 
 }
