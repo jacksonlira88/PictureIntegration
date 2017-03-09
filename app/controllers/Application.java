@@ -22,8 +22,8 @@ public class Application extends Controller {
             "566151883592285",
             "92a1ae36b2a00b92d7714b618fd6ae93"
     );
-
-    public static void index() {
+    
+   public static void index() {
         User u = connected();
         JsonObject me = null;
         if (u != null && u.access_token != null) {
