@@ -41,7 +41,6 @@ public class Application extends Controller {
 	}
 	
 	public static void logout(JsonObject me) {
-
 		index();
     }
 	
@@ -76,6 +75,10 @@ public class Application extends Controller {
 	
 	static User connected() {
 	    return (User)renderArgs.get("user");
+	}
+	
+	public static void sair(){
+		Login.logoff();
 	}
 
 }

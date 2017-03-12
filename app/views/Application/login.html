@@ -27,11 +27,8 @@
                             <div class="panel panel-default">
                             <div class="panel-body">
 
-                                #{if me}
-                                <a href="@{home()}" class="btn btn-block btn-social btn-facebook">
-                                    <i class="fa fa-facebook"></i> Entrar como ${me.get("name")}
-                                </a>
-                                <a href="@{logout(me)}" class="btn btn-block btn-success">
+                                #{if}
+                                <a href="@{login()}" class="btn btn-block btn-success">
                                     <i class=""></i> Mudar conta
                                 </a>
 
