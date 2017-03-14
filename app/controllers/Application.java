@@ -23,58 +23,46 @@ public class Application extends Controller {
             "92a1ae36b2a00b92d7714b618fd6ae93"
     );
     
-	public static void index() {
-        login();
-    }
+	//public static void index() {
+		//login();
+	//	render();
+	//}
 	
 	public static void home() {
         render();
     }
     
 	public static void login() {
-	    User u = connected();
-	    JsonObject me = null;
-	    if (u != null && u.access_token != null) {
-	        me = WS.url("https://graph.facebook.com/me?access_token=%s", WS.encode(u.access_token)).get().getJson().getAsJsonObject();
-	    }
-	    render(me);
+	    render();
 	}
-	
-	public static void logout(JsonObject me) {
-		index();
-    }
 	
 	public static void auth() {
 	    if (OAuth2.isCodeResponse()) {
-	        User u = connected();
-	        OAuth2.Response response = FACEBOOK.retrieveAccessToken(authURL());
-	        u.access_token = response.accessToken;
-	        u.save();
+	        User u = null;
+	        
+	        OAuth2.Response response;
+	        response = FACEBOOK.retrieveAccessToken(authURL());
+	        
+	        String accessToken = response.accessToken;
+	        
+	        JsonObject me = WS.url("https://graph.facebook.com/me?fields=id,name,email&access_token=%s", WS.encode(accessToken)).get().getJson().getAsJsonObject();
+	        
+	        //String email = "teste@gmail.com";
+	       // String email = me.get("email").getAsString();
+	        String id = me.get("id").getAsString();
+	        u = User.find("lower(id)", id.toLowerCase()).first();
+	        if(u == null){
+	        	u = new User();
+	        	u.id = id;
+	        	u.save();
+	        }
 	        home();
 	    }
 	    FACEBOOK.retrieveVerificationCode(authURL());
 	}
 	
-	@Before
-	static void setuser() {
-	    User user = null;
-	    if (session.contains("uid")) {
-	        Logger.info("existing user: " + session.get("uid"));
-	        user = User.get(Long.parseLong(session.get("uid")));
-	    }
-	    if (user == null) {
-	        user = User.createNew();
-	        session.put("uid", user.uid);
-	    }
-	    renderArgs.put("user", user);
-	}
-	
 	static String authURL() {
 	    return play.mvc.Router.getFullUrl("Application.auth");
-	}
-	
-	static User connected() {
-	    return (User)renderArgs.get("user");
 	}
 	
 	public static void sair(){
