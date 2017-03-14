@@ -36,6 +36,10 @@ public class Application extends Controller {
 	    render();
 	}
 	
+	public static void upload() {
+		render();
+	}
+	
 	public static void auth() {
 	    if (OAuth2.isCodeResponse()) {
 	        User u = null;
