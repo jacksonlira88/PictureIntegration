@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonObject;
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.Parameter;
+import com.restfb.types.FacebookType;
 
 public class Application extends Controller {
 
@@ -82,6 +86,12 @@ public class Application extends Controller {
 	
 	public static void sair(){
 		Login.logoff();
+	}
+	
+	public static void post(String url) {
+		FacebookClient cliente = new DefaultFacebookClient(token);
+        FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", "Teste postagem com API (de novo)"));
+        System.out.print("fb.com/"+response.getId());
 	}
 
 }
