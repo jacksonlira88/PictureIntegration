@@ -13,12 +13,7 @@ import play.mvc.Controller;
 
 public class Facebook extends Controller {
 
-    // The following keys correspond to a test application
-    // registered on Facebook, and associated with the loisant.org domain.
-    // You need to bind loisant.org to your machine with /etc/hosts to
-    // test the application locally
-
-	public static String token;
+   	public static String token;
 	
 	public static OAuth2 FACEBOOK = new OAuth2(
             "https://graph.facebook.com/oauth/authorize",
