@@ -73,14 +73,14 @@
                                     <div class="panel panel-default">
                                     <div class="panel-body">
 
-                                        #{if}
-                                        <a href="@{login()}" class="btn btn-block btn-success">
+                                        #{if me}
+                                        <a href="@{Main.login()}" class="btn btn-block btn-success">
                                             <i class=""></i> Mudar conta
                                         </a>
 
                                         #{/if}
                                         #{else}
-                                        <a href="@{auth()}" class="btn btn-block btn-social btn-facebook">
+                                        <a href="@{Facebook.auth()}" class="btn btn-block btn-social btn-facebook">
                                             <i class="fa fa-facebook"></i> Login com Facebook
                                         </a>
                                         #{/else}

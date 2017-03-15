@@ -1,12 +1,7 @@
 package controllers;
 
-import com.google.gson.JsonObject;
-
-import models.User;
 import models.UsuarioF;
 import play.libs.OAuth.ServiceInfo;
-import play.libs.OAuth2;
-import play.libs.WS;
 import play.mvc.Controller;
 
 public class Flicker extends Controller{

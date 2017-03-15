@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                                       Application.login
+GET     /                                       Main.login
 
 
 # Ignore favicon requests

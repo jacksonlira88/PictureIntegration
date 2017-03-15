@@ -1,4 +1,4 @@
-#{extends 'main.html' /}
+#{extends 'Main/base.html' /}
 #{set title:'Picture Integration' /}
 <div id="page-wrapper">
     <div class="row">
@@ -12,7 +12,7 @@
                     <img width="100%" src="../../public/images/img-01.jpg" />
                 </div>
                 <div class="panel-footer">
-                    <a class="" href="@{post()}">
+                    <a class="" href="@{Facebook.post('../../public/images/img-01.jpg')}">
                         <i class="fa fa-facebook"></i>
                     </a>
                     <a class="" href="#">
