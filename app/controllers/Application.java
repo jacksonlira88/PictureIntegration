@@ -22,6 +22,8 @@ public class Application extends Controller {
     // You need to bind loisant.org to your machine with /etc/hosts to
     // test the application locally
 
+	public static String token;
+	
 	public static OAuth2 FACEBOOK = new OAuth2(
             "https://graph.facebook.com/oauth/authorize",
             "https://graph.facebook.com/oauth/access_token",
@@ -53,9 +55,9 @@ public class Application extends Controller {
 	        
 	        OAuth2.Response response;
 	        response = FACEBOOK.retrieveAccessToken(authURL());
-	        String accessToken = response.accessToken;
+	        token = response.accessToken;
 	        
-	        JsonObject me = WS.url("https://graph.facebook.com/me?fields=id,name,email&access_token=%s", WS.encode(accessToken)).get().getJson().getAsJsonObject();
+	        JsonObject me = WS.url("https://graph.facebook.com/me?fields=id,name,email&access_token=%s", WS.encode(token)).get().getJson().getAsJsonObject();
 	        
 	        //String email = "teste@gmail.com";
 	        String email = me.get("email").getAsString();
