@@ -53,9 +53,9 @@ public class Facebook extends Controller {
 	}
 	
 	public static void post(String url) {
-		//String token = "EAAGHvC617SkBAOqBkMtAc76Osltsudq5Rv0ZAUGk9j2J05iCryrcBAVaaDSTNyiGyW24IXAPErZC0yIK9l8IvcSJH9N6KnWjl9SipGEwoZA2jG5OuMFU7A9IWx5Braxz6a0aUAXTrZBs2hqZAfj0xMoh19xek83kZCOwcxF5ZB9NHgC6EG6mfnqmB83PbmedHoZD";
+		//String token = "EAACEdEose0cBAKyNV42CGk5RbQbLEb8z3Awit3rWuwWYeNlDZCKenVQZCPFxv0BBF9kB00npd9lZBdlSCbVF95W2kT7VSTGgdnn9aBZAAPmFPhkyJOZBxWSYqxMGkZCZBARbnWiycvqNMe5vzD3ZC8GkRFZBGMKCZCiXlu695M0aieRCjOG5S6vy9Se32jXNRDoe4ZD";
 		FacebookClient cliente = new DefaultFacebookClient(token);
-        FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", url));
+        FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", "http://images.esoterikha.com/natal/decoracao-de-natal-para-comercio.jpg"));
         System.out.print("fb.com/"+response.getId());
 	}
 
