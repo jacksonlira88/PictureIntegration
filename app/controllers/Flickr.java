@@ -64,10 +64,21 @@ public class Flickr extends Controller {
             .build(FlickrApi.instance());
 
 	public static void home() {
-		Main.home();
+		render();
 	}
 	
-	public static void authenticate() throws IOException {
+	public static void listar() throws IOException{
+		final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service.getConfig());
+        request.addParameter("method", "flickr.people.getPhotos");
+        request.addParameter("user_id", accessToken.getParameter("user_nsid").replace("%40", "@"));
+        service.signRequest(accessToken, request);
+        final Response response = service.execute(request);
+        System.out.println("Consegui! Vamos ver o que encontramos...");
+        System.out.println();
+        System.out.println(response.getBody());
+	}
+	
+	public static void autenticar() throws IOException {
 		requestToken = service.getRequestToken(); //obtém token de solicitação
 		String authorizationUrl = service.getAuthorizationUrl(requestToken); //retorna URL de autorização
 		authorizationUrl = authorizationUrl+"&perms=delete"; //adiciona tipo de permissão a URL de autorização
@@ -76,6 +87,7 @@ public class Flickr extends Controller {
 	
 	public static void autenticado(String oauth_token,String oauth_verifier) throws IOException {
 		accessToken = service.getAccessToken(requestToken, oauth_verifier); //troca token de solicitação por token de acesso
-		Main.home();
+		Main.flickrAutenticado = true;
+		listar();
 	}
 }

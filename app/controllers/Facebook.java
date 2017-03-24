@@ -22,7 +22,7 @@ public class Facebook extends Controller {
             "92a1ae36b2a00b92d7714b618fd6ae93"
     );
 	
-	public static void auth() {
+	public static void autenticar() {
 		
 	    if (OAuth2.isCodeResponse()) {
 	        User u = null;
@@ -43,13 +43,13 @@ public class Facebook extends Controller {
 	        	u.id = id;
 	        	u.save();
 	        }
-	        Main.home();
+	        Main.login();
 	    }
 	    FACEBOOK.retrieveVerificationCode(authURL(), "scope", "email");
 	}
 	
 	static String authURL() {
-	    return play.mvc.Router.getFullUrl("Facebook.auth");
+	    return play.mvc.Router.getFullUrl("Facebook.autenticar");
 	}
 	
 	public static void post(String url) {
