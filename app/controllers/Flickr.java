@@ -75,20 +75,32 @@ public class Flickr extends Controller {
 		render();
 	}
 	
-	public static String getUrlPhoto(String photo_id) 
+	public static Document chamadaDeMethod(List key, List value) 
 			throws IOException, ParserConfigurationException, SAXException {
 		final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service.getConfig());
-		request.addParameter("method", "flickr.photos.getInfo");
-		request.addParameter("photo_id", photo_id);
+		for (int temp = 0; temp < key.size(); temp++) 
+			request.addParameter(key.get(temp).toString(), value.get(temp).toString());
 		service.signRequest(accessToken, request);
 		final Response response = service.execute(request);
-
+		
 		String xml = response.getBody();
 		InputSource is = new InputSource(new StringReader(xml));
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(is);
+		return doc;
+	}
+	
+	public static String getUrlPhoto(String photo_id) 
+			throws IOException, ParserConfigurationException, SAXException {
+		List key = new ArrayList<>();
+		List value = new ArrayList<>();
+		key.add("method");
+		key.add("photo_id");
+		value.add("flickr.photos.getInfo");
+		value.add(photo_id);
 		
+		Document doc = chamadaDeMethod(key, value);
 		NodeList nList = doc.getElementsByTagName("photo");
 		Node nNode = nList.item(0);
 		String secret = null;
@@ -96,26 +108,19 @@ public class Flickr extends Controller {
 			Element eElement = (Element) nNode;
 			secret = eElement.getAttribute("secret");
 		}
-		
-		String url = PHOTOS_URL+photo_id+"_"+secret+".jpg";
-
-		return url;
+		return PHOTOS_URL+photo_id+"_"+secret+".jpg";
 	}
 
 	public static List getIdsDePhotos() 
 			throws IOException, SAXException, ParserConfigurationException {
-		final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service.getConfig());
-		request.addParameter("method", "flickr.people.getPhotos"); // flickr.photos.getInfo
-		request.addParameter("user_id", accessToken.getParameter("user_nsid").replace("%40", "@"));
-		service.signRequest(accessToken, request);
-		final Response response = service.execute(request);
-
-		String xml = response.getBody();
-		InputSource is = new InputSource(new StringReader(xml));
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(is);
-
+		List key = new ArrayList<>();
+		List value = new ArrayList<>();
+		key.add("method");
+		key.add("user_id");
+		value.add("flickr.people.getPhotos");
+		value.add(accessToken.getParameter("user_nsid").replace("%40", "@"));
+		
+		Document doc = chamadaDeMethod(key, value);
 		NodeList nList = doc.getElementsByTagName("photo");
 		List ids = new ArrayList<String>();
 		for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -131,9 +136,8 @@ public class Flickr extends Controller {
 	public static List atualizaURLs() 
 			throws IOException, SAXException, ParserConfigurationException {
 		List urls = new ArrayList<String>();
-		for (int temp = 0; temp < getIdsDePhotos().size(); temp++) {
+		for (int temp = 0; temp < getIdsDePhotos().size(); temp++)
 			urls.add(getUrlPhoto(getIdsDePhotos().get(temp).toString()));
-		}
 		
 		return urls;
 	}
