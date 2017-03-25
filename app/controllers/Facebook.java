@@ -1,5 +1,11 @@
 package controllers;
 
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import com.google.gson.JsonObject;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
@@ -52,11 +58,12 @@ public class Facebook extends Controller {
 	    return play.mvc.Router.getFullUrl("Facebook.autenticar");
 	}
 	
-	public static void post(String url) {
-		//String token = "EAACEdEose0cBAKyNV42CGk5RbQbLEb8z3Awit3rWuwWYeNlDZCKenVQZCPFxv0BBF9kB00npd9lZBdlSCbVF95W2kT7VSTGgdnn9aBZAAPmFPhkyJOZBxWSYqxMGkZCZBARbnWiycvqNMe5vzD3ZC8GkRFZBGMKCZCiXlu695M0aieRCjOG5S6vy9Se32jXNRDoe4ZD";
+	public static void post(String url) throws SAXException, IOException, ParserConfigurationException {
+		String token = "EAACEdEose0cBAOJZBqunwdkoRLiwstyv3YZBQk202QZAAMnGiZB57BtLCCSN6So1g49hU4sv4oiYio4lKE0abfS5UxNIciIuLWAA2yFVD3osw1UfxR655ZBReG6q4vgzMcFNXrrT5hG0ZBMnTz8FC8T4jX2d2VMzd3DyJ69JbtZBMZAhgKnqjsOBcZBbGR1o2FswZD";
 		FacebookClient cliente = new DefaultFacebookClient(token);
-        FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", "http://images.esoterikha.com/natal/decoracao-de-natal-para-comercio.jpg"));
+        FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", url));
         System.out.print("fb.com/"+response.getId());
+        Flickr.listarPhotos();
 	}
 
 }

@@ -137,10 +137,11 @@ public class Flickr extends Controller {
 		
 		return urls;
 	}
-
+ 
 	public static void listarPhotos() 
 			throws SAXException, IOException, ParserConfigurationException {
-		List listaUrlPotos = atualizaURLs();
+		List listaUrlPhotos = atualizaURLs();
+		render(listaUrlPhotos);
 	}
 
 	public static void autenticado(String oauth_token, String oauth_verifier)
