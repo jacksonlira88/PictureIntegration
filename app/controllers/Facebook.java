@@ -59,7 +59,7 @@ public class Facebook extends Controller {
 	}
 	
 	public static void post(String url) throws SAXException, IOException, ParserConfigurationException {
-		String token = "EAACEdEose0cBAOJZBqunwdkoRLiwstyv3YZBQk202QZAAMnGiZB57BtLCCSN6So1g49hU4sv4oiYio4lKE0abfS5UxNIciIuLWAA2yFVD3osw1UfxR655ZBReG6q4vgzMcFNXrrT5hG0ZBMnTz8FC8T4jX2d2VMzd3DyJ69JbtZBMZAhgKnqjsOBcZBbGR1o2FswZD";
+		String token = "EAACEdEose0cBAGuiTjkY7IXaKfsgV0r7LYjTF5JfT6nJmOqJUlZCFKW08jKMlcfKiZCpDkY3PUps2wZCt5EFA6HZBzmRoM8IgBMyMAil5ZCKvRbrYMG9H62Ww5cBC4E5oTWsZBPVlNbiHU2WcAoA7e9ZCoEpcxsCEmZABouMLGc7vl3tjCAAA9WKLN6ByVNjSZBAZD";
 		FacebookClient cliente = new DefaultFacebookClient(token);
         FacebookType response =  cliente.publish("me/feed", FacebookType.class, Parameter.with("message", url));
         System.out.print("fb.com/"+response.getId());

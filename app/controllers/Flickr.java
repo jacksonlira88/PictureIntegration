@@ -47,6 +47,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.ning.http.client.Request;
 
+import models.Photo;
 import models.User;
 import models.UsuarioF;
 import play.Logger;
@@ -78,8 +79,8 @@ public class Flickr extends Controller {
 	public static Document chamadaDeMethod(List key, List value) 
 			throws IOException, ParserConfigurationException, SAXException {
 		final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service.getConfig());
-		for (int temp = 0; temp < key.size(); temp++) 
-			request.addParameter(key.get(temp).toString(), value.get(temp).toString());
+		for (int i = 0; i < key.size(); i++) 
+			request.addParameter(key.get(i).toString(), value.get(i).toString());
 		service.signRequest(accessToken, request);
 		final Response response = service.execute(request);
 		
@@ -91,61 +92,47 @@ public class Flickr extends Controller {
 		return doc;
 	}
 	
-	public static String getUrlPhoto(String photo_id) 
-			throws IOException, ParserConfigurationException, SAXException {
+	public static void deletePhoto(String photo_id) 
+			throws SAXException, IOException, ParserConfigurationException {
 		List key = new ArrayList<>();
 		List value = new ArrayList<>();
-		key.add("method");
-		key.add("photo_id");
-		value.add("flickr.photos.getInfo");
-		value.add(photo_id);
-		
-		Document doc = chamadaDeMethod(key, value);
-		NodeList nList = doc.getElementsByTagName("photo");
-		Node nNode = nList.item(0);
-		String secret = null;
-		if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element eElement = (Element) nNode;
-			secret = eElement.getAttribute("secret");
-		}
-		return PHOTOS_URL+photo_id+"_"+secret+".jpg";
+		key.add("method"); value.add("flickr.photos.delete");
+		key.add("photo_id"); value.add(photo_id);
+		chamadaDeMethod(key, value);
+		listarPhotos();
 	}
 
-	public static List getIdsDePhotos() 
+	public static List getPhotos() 
 			throws IOException, SAXException, ParserConfigurationException {
 		List key = new ArrayList<>();
 		List value = new ArrayList<>();
-		key.add("method");
-		key.add("user_id");
-		value.add("flickr.people.getPhotos");
-		value.add(accessToken.getParameter("user_nsid").replace("%40", "@"));
+		key.add("method"); value.add("flickr.people.getPhotos");
+		key.add("user_id"); value.add(accessToken.getParameter("user_nsid").replace("%40", "@"));
 		
 		Document doc = chamadaDeMethod(key, value);
 		NodeList nList = doc.getElementsByTagName("photo");
-		List ids = new ArrayList<String>();
-		for (int temp = 0; temp < nList.getLength(); temp++) {
-			Node nNode = nList.item(temp);
+		List photos = new ArrayList<>();
+		Photo photo = null;
+		for (int i = 0; i < nList.getLength(); i++) {
+			Node nNode = nList.item(i);
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
-				ids.add(eElement.getAttribute("id"));
+				photo = new Photo(
+						eElement.getAttribute("id"),
+						eElement.getAttribute("secret"),
+						eElement.getAttribute("owner"),
+						eElement.getAttribute("title"),
+						PHOTOS_URL+eElement.getAttribute("id")+"_"+eElement.getAttribute("secret")+".jpg");
 			}
+			photos.add(photo);
 		}
-		return ids;
-	}
-	
-	public static List atualizaURLs() 
-			throws IOException, SAXException, ParserConfigurationException {
-		List urls = new ArrayList<String>();
-		for (int temp = 0; temp < getIdsDePhotos().size(); temp++)
-			urls.add(getUrlPhoto(getIdsDePhotos().get(temp).toString()));
-		
-		return urls;
+		return photos;
 	}
  
 	public static void listarPhotos() 
 			throws SAXException, IOException, ParserConfigurationException {
-		List listaUrlPhotos = atualizaURLs();
-		render(listaUrlPhotos);
+		List photos = getPhotos();
+		render(photos);
 	}
 
 	public static void autenticado(String oauth_token, String oauth_verifier)

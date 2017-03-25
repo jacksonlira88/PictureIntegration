@@ -6,17 +6,17 @@
             <h1 class="page-header">Flickr</h1>
         </div>
 
-            #{list items:listaUrlPhotos, as: 'url'}
+            #{list items:photos, as: 'photo'}
             <div class="col-lg-3">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <img width="200px" height="200px" src="${url}" />
+                        <img width="200px" height="200px" src="${photo.getUrl()}" />
                     </div>
                     <div class="panel-footer">
-                        <a class="" href="@{Facebook.post(url)}">
+                        <a class="" href="@{Facebook.post(photo.getUrl())}">
                             <i class="fa fa-facebook"></i>
                         </a>
-                        <a class="" href="#">
+                        <a class="" href="@{Flickr.deletePhoto(photo.getId())}">
                             <i class="fa fa-pull-right fa-trash"></i>
                         </a>
                     </div>
