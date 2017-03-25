@@ -1,10 +1,13 @@
 package controllers;
 
 import java.util.List;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,9 +22,16 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.naming.Context;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.github.scribejava.apis.FlickrApi;
@@ -37,11 +47,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.ning.http.client.Request;
 
+import models.Photo;
 import models.User;
 import models.UsuarioF;
 import play.Logger;
 import play.libs.OAuth;
-//import play.libs.OAuth.Response;
 import play.libs.OAuth.ServiceInfo;
 import play.libs.OAuth2;
 import play.libs.WS;
@@ -52,42 +62,94 @@ import play.mvc.results.Redirect;
 
 public class Flickr extends Controller {
 	private static final String PROTECTED_RESOURCE_URL = "https://api.flickr.com/services/rest/";
+	private static final String PHOTOS_URL = "http://www.flickr.com/photos/";
 	private static OAuth1RequestToken requestToken;
 	private static OAuth1AccessToken accessToken;
-	
-	final static String apiKey = "30e667f87d1ecbca4e18846dffff86a2";
-    final static String apiSecret = "961b22cca7d087a5";
-    final static OAuth10aService service = new ServiceBuilder()
-            .apiKey(apiKey)
-            .apiSecret(apiSecret)
-            .callback("http://localhost:9000/flickr/autenticado")
-            .build(FlickrApi.instance());
+
+	final static OAuth10aService service = new ServiceBuilder()
+			.apiKey("30e667f87d1ecbca4e18846dffff86a2")
+			.apiSecret("961b22cca7d087a5")
+			.callback("http://localhost:9000/flickr/autenticado")
+			.build(FlickrApi.instance());
 
 	public static void home() {
 		render();
 	}
 	
-	public static void listar() throws IOException{
+	public static Document chamadaDeMethod(List key, List value) 
+			throws IOException, ParserConfigurationException, SAXException {
 		final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service.getConfig());
-        request.addParameter("method", "flickr.people.getPhotos");
-        request.addParameter("user_id", accessToken.getParameter("user_nsid").replace("%40", "@"));
-        service.signRequest(accessToken, request);
-        final Response response = service.execute(request);
-        System.out.println("Consegui! Vamos ver o que encontramos...");
-        System.out.println();
-        System.out.println(response.getBody());
+		for (int i = 0; i < key.size(); i++) 
+			request.addParameter(key.get(i).toString(), value.get(i).toString());
+		service.signRequest(accessToken, request);
+		final Response response = service.execute(request);
+		
+		String xml = response.getBody();
+		InputSource is = new InputSource(new StringReader(xml));
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(is);
+		return doc;
+	}
+	
+	public static void deletePhoto(String photo_id) 
+			throws SAXException, IOException, ParserConfigurationException {
+		List key = new ArrayList<>();
+		List value = new ArrayList<>();
+		key.add("method"); value.add("flickr.photos.delete");
+		key.add("photo_id"); value.add(photo_id);
+		chamadaDeMethod(key, value);
+		listarPhotos();
+	}
+
+	public static List getPhotos() 
+			throws IOException, SAXException, ParserConfigurationException {
+		List key = new ArrayList<>();
+		List value = new ArrayList<>();
+		key.add("method"); value.add("flickr.people.getPhotos");
+		key.add("user_id"); value.add(accessToken.getParameter("user_nsid").replace("%40", "@"));
+		
+		Document doc = chamadaDeMethod(key, value);
+		NodeList nList = doc.getElementsByTagName("photo");
+		List photos = new ArrayList<>();
+		Photo photo = null;
+		for (int i = 0; i < nList.getLength(); i++) {
+			Node nNode = nList.item(i);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				photo = new Photo(
+						eElement.getAttribute("id"),
+						eElement.getAttribute("secret"),
+						eElement.getAttribute("owner"),
+						eElement.getAttribute("title"),
+						PHOTOS_URL+eElement.getAttribute("id")+"_"+eElement.getAttribute("secret")+".jpg");
+			}
+			photos.add(photo);
+		}
+		return photos;
+	}
+ 
+	public static void listarPhotos() 
+			throws SAXException, IOException, ParserConfigurationException {
+		List photos = getPhotos();
+		render(photos);
+	}
+
+	public static void autenticado(String oauth_token, String oauth_verifier)
+			throws IOException, SAXException, ParserConfigurationException {
+		// troca token de solicitação por token de acesso
+		accessToken = service.getAccessToken(requestToken, oauth_verifier);
+		Main.flickrAutenticado = true;
+		listarPhotos();
 	}
 	
 	public static void autenticar() throws IOException {
-		requestToken = service.getRequestToken(); //obtém token de solicitação
-		String authorizationUrl = service.getAuthorizationUrl(requestToken); //retorna URL de autorização
-		authorizationUrl = authorizationUrl+"&perms=delete"; //adiciona tipo de permissão a URL de autorização
+		// obtém token de solicitação
+		requestToken = service.getRequestToken();
+		// retorna URL de autorização
+		String authorizationUrl = service.getAuthorizationUrl(requestToken);
+		// adiciona tipo de permissão a URL de autorização
+		authorizationUrl = authorizationUrl + "&perms=delete";
 		redirect(authorizationUrl);
-	}
-	
-	public static void autenticado(String oauth_token,String oauth_verifier) throws IOException {
-		accessToken = service.getAccessToken(requestToken, oauth_verifier); //troca token de solicitação por token de acesso
-		Main.flickrAutenticado = true;
-		listar();
 	}
 }
