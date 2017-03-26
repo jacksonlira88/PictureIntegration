@@ -65,21 +65,31 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse">
                         <ul class="nav" id="side-menu">
-                            <li class="sidebar-search">
-                                <div>
-                                    <p><a href="@{Main.upload}"">
-                                        <button class="btn btn-primary btn-lg btn-block">Upload</button>
-                                    </p></a>
-                                </div>
-                            </li>
                             <li>
-                                <a href="#"><i class="fa fa-flickr fa-fw"></i> {Flickr}</a>
+                                <a href="@{Flickr.listarPhotos}"><i class="fa fa-flickr fa-fw"></i> {Flickr}</a>
                             </li>
                             <li>
                                 <a href="#"><i class="fa fa-instagram fa-fw"></i> {Instagram}</a>
                             </li>
                             <!--li class="divider"></li-->
                             <li><a href="@{Main.logoff}"><i class="fa fa-sign-out fa-fw"></i> Sair</a>
+                            </li>
+                            <li>
+                                <div class="container-fluid"><br>
+                                <p>Enviar imagem para o {Flickr}</p>
+                                <form action="@{Flickr.uploadPhoto()}" method="post" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label>Título</label>
+                                        <input class="form-control" name="title" type="text">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Selecionar Arquivo</label>
+                                        <input type="file" name="photo">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Enviar</button>
+                                    <button type="reset" class="btn btn-primary">Limpar</button>
+                                </form>
+                                </div>
                             </li>
                         </ul>
                     </div>
