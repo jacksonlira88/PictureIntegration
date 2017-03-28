@@ -1,6 +1,11 @@
 package controllers;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +31,12 @@ import play.mvc.Http;
 import sun.net.www.http.HttpCapture;
 import sun.print.resources.serviceui;
 
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+import com.restfb.json.Json;
+
 
 
 public class Google extends Controller{
@@ -36,13 +45,14 @@ public class Google extends Controller{
     private static final String PROTECTED_RESOURCE_URL = "https://www.googleapis.com/plus/v1/people/me";
     final static String clientId = "1028226317407-jk5p36jspa1j0mltv8pdic5jov6vp4ak.apps.googleusercontent.com";
     final static String clientSecret = "FvTQgY6WHThcH09zlwcGCxjj";
-    final static String secretState = "secret" + new Random().nextInt(999_999);
+    //final static String secretState = "secret" + new Random().nextInt(999_999);
     private static OAuth2AccessToken accessToken;
+     
     final static OAuth20Service service = new ServiceBuilder()
             .apiKey(clientId)
             .apiSecret(clientSecret)
-            .scope("https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/plus.stream.write https://www.googleapis.com/auth/plus.stream.read") // SUBSTITUA-O PELO ESCOPO DESEJADO
-            .state(secretState)
+            .scope("https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/plus.stream.write") // SUBSTITUA-O PELO ESCOPO DESEJADO
+            
             .callback("http://localhost:9000/google/autenticado")
             .build(GoogleApi20.instance());
    
@@ -76,38 +86,75 @@ public class Google extends Controller{
     }
     
     
-    public static void postar(){
-    	
-    	String requestUrl =  PROTECTED_RESOURCE_URL + "alt=json";
-    	final OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl);
+    //PEGA TODOS OS DADOS BÁSICOS DO USUÁRIO
+    public static void usuario(){
+    	 
+    	String requestUrl =  PROTECTED_RESOURCE_URL + "?" + accessToken.getAccessToken();
+    	final OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl, service.getConfig());
         service.signRequest(accessToken, request);
         try {
         	Response response = service.execute(request);
         	System.out.println(response.getCode());
         	System.out.println(response.getBody());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	/*
-    	JsonObject me = null;
-    	try {
-    	 me = WS.url("GET https://www.googleapis.com/plus/v1/people/me").get().getJson().getAsJsonObject();
-		} catch (Exception e) {
+        
+        
+    }
+    
+    public static void postar() throws FileNotFoundException{
+    	//Gson json = new Gson();
+    	JsonObject object = new JsonObject();
+		JsonObject ori = new JsonObject();
+		JsonObject access = new JsonObject();
+		JsonObject type = new JsonObject();
+		
+		access.addProperty("domainRestricted", true);
+   		type.addProperty("type", "domain");
+		access.add("items", type);
+		ori.addProperty("originalContent", "Testando post");
+		object.add("object", ori);
+		object.add("access", access);
+		Gson a = new Gson();
+		String json = a.toJson(object);
+		
+    	
+    	
+    	String requestUrl =  "https://www.googleapis.com/plusDomains/v1/people/me/activities?" +accessToken.getAccessToken();
+    	final OAuthRequest request = new OAuthRequest(Verb.POST, requestUrl, service.getConfig());
+    	request.addHeader("content-type", "application/json");
+    	request.addBodyParameter(json, json);
+    	service.signRequest(accessToken, request);
+       
+        try {
+        	Response response = service.execute(request);
+        	System.out.println(response.getCode());
+        	System.out.println(response.getBody());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
-    	String email = me.get("email").getAsString();
-        String id = me.get("id").getAsString();
-        System.out.println(email);
-        System.out.println(id);
-       */
+    }
+    
+    
+    public static void atividade(){
+    	//https://www.googleapis.com/plusDomains/v1/people/userId/activities
+    	String requestUrl =  PROTECTED_RESOURCE_URL + "/activities/collection" + "?collection=public" ;
+    	final OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl, service.getConfig());
+        service.signRequest(accessToken, request);
+        try {
+        	Response response = service.execute(request);
+        	System.out.println(response.getCode());
+        	System.out.println(response.getBody());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    
+        
     }
     	
     	
