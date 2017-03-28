@@ -35,7 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import com.restfb.json.Json;
+//import com.restfb.json.Json;
 
 
 
@@ -81,8 +81,7 @@ public class Google extends Controller{
         System.out.println("Obteve o token de acesso!");											//Got the Access Token
         System.out.println("(Se o seu curioso se parece com isso: " + accessToken					//if your curious it looks like this
                 + ", 'rawResponse'='" + accessToken.getRawResponse() + "')");
-        postar();
-        Main.home();
+        Main.login();
     }
     
     
